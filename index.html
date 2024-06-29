@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/MarkerCluster.css">
+        <link rel="stylesheet" href="css/MarkerCluster.Default.css">
+        <link rel="stylesheet" href="css/leaflet-search.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>CARTOGRAPHIE DES ACTEURS DE LA MIGRATION AU BURKINA FASO</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/leaflet.markercluster.js"></script>
+        <script src="js/leaflet-search.js"></script>
+        <script src="data/CIAUDCanada_1.js"></script>
+        <script src="data/CaritasSuisse_2.js"></script>
+        <script src="data/BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3.js"></script>
+        <script src="data/AssociationTON_4.js"></script>
+        <script src="data/RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5.js"></script>
+        <script src="data/CercledInitiativeetdeConcertationdelOubritengaCICO_6.js"></script>
+        <script src="data/AssociationpourledveloppementduyatengaauBoulkiemdADYB_7.js"></script>
+        <script src="data/AssociationdesressortissantsduSanguiARSO_8.js"></script>
+        <script src="data/LeaderreligieuxZiniar_9.js"></script>
+        <script src="data/ChefferiecoutumireZiniar_10.js"></script>
+        <script src="data/AssociationdesBwabasetSympathisantsdeZiniar_11.js"></script>
+        <script src="data/LeaderreligieuxKoudougou_12.js"></script>
+        <script src="data/AssociationdesressortissantsduGanzourgouKoudougou_13.js"></script>
+        <script src="data/AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.js"></script>
+        <script src="data/LeaderreligieuxSapouyOCADESCaritasBurkina_15.js"></script>
+        <script src="data/LeaderreligieuxSapouy_16.js"></script>
+        <script src="data/ChefferiecoutumireSapouy_17.js"></script>
+        <script src="data/AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18.js"></script>
+        <script src="data/AssociationOunKounDoOunKoun_19.js"></script>
+        <script src="data/LeaderreligieuxBanfora_20.js"></script>
+        <script src="data/DEWRAN_21.js"></script>
+        <script src="data/ChefferiecoutumireBanfora_22.js"></script>
+        <script src="data/SyndicatdestransporteursroutiersNiangoloko_23.js"></script>
+        <script src="data/CommunautdesmossisNiangoloko_24.js"></script>
+        <script src="data/BURKINAFASO_25.js"></script>
+        <script src="data/ACTEURS_26.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[8.37167352317074,-5.7092220500000055],[14.65833447682927,2.605394049999984]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topright'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>CARTOGRAPHIE DES ACTEURS DE LA MIGRATION AU BURKINA FASO</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'bottomleft'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+                this._div.setAttribute("onmouseenter", "abstract.show()");
+                this._div.setAttribute("onmouseleave", "abstract.hide()");
+                this.hide();
+                return this._div;
+            };
+            abstract.hide = function () {
+                this._div.classList.remove("abstractUncollapsed");
+                this._div.classList.add("abstract");
+                this._div.innerHTML = 'i'
+            }
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'Ce webmapping cartographie les acteurs de la migration pour montrer qui fait quoi et où. Il facilite la coordination des efforts et le référencement des services, aidant ainsi les migrants vulnérables à trouver rapidement l\'assistance nécessaire.<br />En quelques clics, accédez à une multitude de ressources et trouvez l\'aide dont vous avez besoin.';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0].className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            map.setMaxBounds(map.getBounds());
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_CIAUDCanada_1(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CIAUDCanada_1_0() {
+            return {
+                pane: 'pane_CIAUDCanada_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,166,166,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_CIAUDCanada_1');
+        map.getPane('pane_CIAUDCanada_1').style.zIndex = 401;
+        map.getPane('pane_CIAUDCanada_1').style['mix-blend-mode'] = 'normal';
+        var layer_CIAUDCanada_1 = new L.geoJson(json_CIAUDCanada_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_CIAUDCanada_1',
+            layerName: 'layer_CIAUDCanada_1',
+            pane: 'pane_CIAUDCanada_1',
+            onEachFeature: pop_CIAUDCanada_1,
+            style: style_CIAUDCanada_1_0,
+        });
+        bounds_group.addLayer(layer_CIAUDCanada_1);
+        function pop_CaritasSuisse_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CaritasSuisse_2_0() {
+            return {
+                pane: 'pane_CaritasSuisse_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,166,166,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_CaritasSuisse_2');
+        map.getPane('pane_CaritasSuisse_2').style.zIndex = 402;
+        map.getPane('pane_CaritasSuisse_2').style['mix-blend-mode'] = 'normal';
+        var layer_CaritasSuisse_2 = new L.geoJson(json_CaritasSuisse_2, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_CaritasSuisse_2',
+            layerName: 'layer_CaritasSuisse_2',
+            pane: 'pane_CaritasSuisse_2',
+            onEachFeature: pop_CaritasSuisse_2,
+            style: style_CaritasSuisse_2_0,
+        });
+        bounds_group.addLayer(layer_CaritasSuisse_2);
+        function pop_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3_0() {
+            return {
+                pane: 'pane_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,166,166,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3');
+        map.getPane('pane_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3').style.zIndex = 403;
+        map.getPane('pane_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3').style['mix-blend-mode'] = 'normal';
+        var layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3 = new L.geoJson(json_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3',
+            layerName: 'layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3',
+            pane: 'pane_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3',
+            onEachFeature: pop_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,
+            style: style_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3_0,
+        });
+        bounds_group.addLayer(layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3);
+        function pop_AssociationTON_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationTON_4_0() {
+            return {
+                pane: 'pane_AssociationTON_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(166,166,166,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationTON_4');
+        map.getPane('pane_AssociationTON_4').style.zIndex = 404;
+        map.getPane('pane_AssociationTON_4').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationTON_4 = new L.geoJson(json_AssociationTON_4, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationTON_4',
+            layerName: 'layer_AssociationTON_4',
+            pane: 'pane_AssociationTON_4',
+            onEachFeature: pop_AssociationTON_4,
+            style: style_AssociationTON_4_0,
+        });
+        bounds_group.addLayer(layer_AssociationTON_4);
+        function pop_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5_0() {
+            return {
+                pane: 'pane_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5');
+        map.getPane('pane_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5').style.zIndex = 405;
+        map.getPane('pane_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5').style['mix-blend-mode'] = 'normal';
+        var layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5 = new L.geoJson(json_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5',
+            layerName: 'layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5',
+            pane: 'pane_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5',
+            onEachFeature: pop_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,
+            style: style_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5_0,
+        });
+        bounds_group.addLayer(layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5);
+        function pop_CercledInitiativeetdeConcertationdelOubritengaCICO_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CercledInitiativeetdeConcertationdelOubritengaCICO_6_0() {
+            return {
+                pane: 'pane_CercledInitiativeetdeConcertationdelOubritengaCICO_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_CercledInitiativeetdeConcertationdelOubritengaCICO_6');
+        map.getPane('pane_CercledInitiativeetdeConcertationdelOubritengaCICO_6').style.zIndex = 406;
+        map.getPane('pane_CercledInitiativeetdeConcertationdelOubritengaCICO_6').style['mix-blend-mode'] = 'normal';
+        var layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6 = new L.geoJson(json_CercledInitiativeetdeConcertationdelOubritengaCICO_6, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_CercledInitiativeetdeConcertationdelOubritengaCICO_6',
+            layerName: 'layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6',
+            pane: 'pane_CercledInitiativeetdeConcertationdelOubritengaCICO_6',
+            onEachFeature: pop_CercledInitiativeetdeConcertationdelOubritengaCICO_6,
+            style: style_CercledInitiativeetdeConcertationdelOubritengaCICO_6_0,
+        });
+        bounds_group.addLayer(layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6);
+        function pop_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7_0() {
+            return {
+                pane: 'pane_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7');
+        map.getPane('pane_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7').style.zIndex = 407;
+        map.getPane('pane_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7 = new L.geoJson(json_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7',
+            layerName: 'layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7',
+            pane: 'pane_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7',
+            onEachFeature: pop_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,
+            style: style_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7_0,
+        });
+        bounds_group.addLayer(layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7);
+        function pop_AssociationdesressortissantsduSanguiARSO_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationdesressortissantsduSanguiARSO_8_0() {
+            return {
+                pane: 'pane_AssociationdesressortissantsduSanguiARSO_8',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationdesressortissantsduSanguiARSO_8');
+        map.getPane('pane_AssociationdesressortissantsduSanguiARSO_8').style.zIndex = 408;
+        map.getPane('pane_AssociationdesressortissantsduSanguiARSO_8').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationdesressortissantsduSanguiARSO_8 = new L.geoJson(json_AssociationdesressortissantsduSanguiARSO_8, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationdesressortissantsduSanguiARSO_8',
+            layerName: 'layer_AssociationdesressortissantsduSanguiARSO_8',
+            pane: 'pane_AssociationdesressortissantsduSanguiARSO_8',
+            onEachFeature: pop_AssociationdesressortissantsduSanguiARSO_8,
+            style: style_AssociationdesressortissantsduSanguiARSO_8_0,
+        });
+        bounds_group.addLayer(layer_AssociationdesressortissantsduSanguiARSO_8);
+        function pop_LeaderreligieuxZiniar_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LeaderreligieuxZiniar_9_0() {
+            return {
+                pane: 'pane_LeaderreligieuxZiniar_9',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LeaderreligieuxZiniar_9');
+        map.getPane('pane_LeaderreligieuxZiniar_9').style.zIndex = 409;
+        map.getPane('pane_LeaderreligieuxZiniar_9').style['mix-blend-mode'] = 'normal';
+        var layer_LeaderreligieuxZiniar_9 = new L.geoJson(json_LeaderreligieuxZiniar_9, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LeaderreligieuxZiniar_9',
+            layerName: 'layer_LeaderreligieuxZiniar_9',
+            pane: 'pane_LeaderreligieuxZiniar_9',
+            onEachFeature: pop_LeaderreligieuxZiniar_9,
+            style: style_LeaderreligieuxZiniar_9_0,
+        });
+        bounds_group.addLayer(layer_LeaderreligieuxZiniar_9);
+        function pop_ChefferiecoutumireZiniar_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ChefferiecoutumireZiniar_10_0() {
+            return {
+                pane: 'pane_ChefferiecoutumireZiniar_10',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_ChefferiecoutumireZiniar_10');
+        map.getPane('pane_ChefferiecoutumireZiniar_10').style.zIndex = 410;
+        map.getPane('pane_ChefferiecoutumireZiniar_10').style['mix-blend-mode'] = 'normal';
+        var layer_ChefferiecoutumireZiniar_10 = new L.geoJson(json_ChefferiecoutumireZiniar_10, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_ChefferiecoutumireZiniar_10',
+            layerName: 'layer_ChefferiecoutumireZiniar_10',
+            pane: 'pane_ChefferiecoutumireZiniar_10',
+            onEachFeature: pop_ChefferiecoutumireZiniar_10,
+            style: style_ChefferiecoutumireZiniar_10_0,
+        });
+        bounds_group.addLayer(layer_ChefferiecoutumireZiniar_10);
+        function pop_AssociationdesBwabasetSympathisantsdeZiniar_11(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationdesBwabasetSympathisantsdeZiniar_11_0() {
+            return {
+                pane: 'pane_AssociationdesBwabasetSympathisantsdeZiniar_11',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationdesBwabasetSympathisantsdeZiniar_11');
+        map.getPane('pane_AssociationdesBwabasetSympathisantsdeZiniar_11').style.zIndex = 411;
+        map.getPane('pane_AssociationdesBwabasetSympathisantsdeZiniar_11').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationdesBwabasetSympathisantsdeZiniar_11 = new L.geoJson(json_AssociationdesBwabasetSympathisantsdeZiniar_11, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationdesBwabasetSympathisantsdeZiniar_11',
+            layerName: 'layer_AssociationdesBwabasetSympathisantsdeZiniar_11',
+            pane: 'pane_AssociationdesBwabasetSympathisantsdeZiniar_11',
+            onEachFeature: pop_AssociationdesBwabasetSympathisantsdeZiniar_11,
+            style: style_AssociationdesBwabasetSympathisantsdeZiniar_11_0,
+        });
+        bounds_group.addLayer(layer_AssociationdesBwabasetSympathisantsdeZiniar_11);
+        function pop_LeaderreligieuxKoudougou_12(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LeaderreligieuxKoudougou_12_0() {
+            return {
+                pane: 'pane_LeaderreligieuxKoudougou_12',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LeaderreligieuxKoudougou_12');
+        map.getPane('pane_LeaderreligieuxKoudougou_12').style.zIndex = 412;
+        map.getPane('pane_LeaderreligieuxKoudougou_12').style['mix-blend-mode'] = 'normal';
+        var layer_LeaderreligieuxKoudougou_12 = new L.geoJson(json_LeaderreligieuxKoudougou_12, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LeaderreligieuxKoudougou_12',
+            layerName: 'layer_LeaderreligieuxKoudougou_12',
+            pane: 'pane_LeaderreligieuxKoudougou_12',
+            onEachFeature: pop_LeaderreligieuxKoudougou_12,
+            style: style_LeaderreligieuxKoudougou_12_0,
+        });
+        bounds_group.addLayer(layer_LeaderreligieuxKoudougou_12);
+        function pop_AssociationdesressortissantsduGanzourgouKoudougou_13(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationdesressortissantsduGanzourgouKoudougou_13_0() {
+            return {
+                pane: 'pane_AssociationdesressortissantsduGanzourgouKoudougou_13',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationdesressortissantsduGanzourgouKoudougou_13');
+        map.getPane('pane_AssociationdesressortissantsduGanzourgouKoudougou_13').style.zIndex = 413;
+        map.getPane('pane_AssociationdesressortissantsduGanzourgouKoudougou_13').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationdesressortissantsduGanzourgouKoudougou_13 = new L.geoJson(json_AssociationdesressortissantsduGanzourgouKoudougou_13, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationdesressortissantsduGanzourgouKoudougou_13',
+            layerName: 'layer_AssociationdesressortissantsduGanzourgouKoudougou_13',
+            pane: 'pane_AssociationdesressortissantsduGanzourgouKoudougou_13',
+            onEachFeature: pop_AssociationdesressortissantsduGanzourgouKoudougou_13,
+            style: style_AssociationdesressortissantsduGanzourgouKoudougou_13_0,
+        });
+        bounds_group.addLayer(layer_AssociationdesressortissantsduGanzourgouKoudougou_13);
+        function pop_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14_0() {
+            return {
+                pane: 'pane_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14');
+        map.getPane('pane_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14').style.zIndex = 414;
+        map.getPane('pane_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14 = new L.geoJson(json_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14',
+            layerName: 'layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14',
+            pane: 'pane_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14',
+            onEachFeature: pop_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,
+            style: style_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14_0,
+        });
+        bounds_group.addLayer(layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14);
+        function pop_LeaderreligieuxSapouyOCADESCaritasBurkina_15(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LeaderreligieuxSapouyOCADESCaritasBurkina_15_0() {
+            return {
+                pane: 'pane_LeaderreligieuxSapouyOCADESCaritasBurkina_15',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LeaderreligieuxSapouyOCADESCaritasBurkina_15');
+        map.getPane('pane_LeaderreligieuxSapouyOCADESCaritasBurkina_15').style.zIndex = 415;
+        map.getPane('pane_LeaderreligieuxSapouyOCADESCaritasBurkina_15').style['mix-blend-mode'] = 'normal';
+        var layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15 = new L.geoJson(json_LeaderreligieuxSapouyOCADESCaritasBurkina_15, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LeaderreligieuxSapouyOCADESCaritasBurkina_15',
+            layerName: 'layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15',
+            pane: 'pane_LeaderreligieuxSapouyOCADESCaritasBurkina_15',
+            onEachFeature: pop_LeaderreligieuxSapouyOCADESCaritasBurkina_15,
+            style: style_LeaderreligieuxSapouyOCADESCaritasBurkina_15_0,
+        });
+        bounds_group.addLayer(layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15);
+        function pop_LeaderreligieuxSapouy_16(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LeaderreligieuxSapouy_16_0() {
+            return {
+                pane: 'pane_LeaderreligieuxSapouy_16',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LeaderreligieuxSapouy_16');
+        map.getPane('pane_LeaderreligieuxSapouy_16').style.zIndex = 416;
+        map.getPane('pane_LeaderreligieuxSapouy_16').style['mix-blend-mode'] = 'normal';
+        var layer_LeaderreligieuxSapouy_16 = new L.geoJson(json_LeaderreligieuxSapouy_16, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LeaderreligieuxSapouy_16',
+            layerName: 'layer_LeaderreligieuxSapouy_16',
+            pane: 'pane_LeaderreligieuxSapouy_16',
+            onEachFeature: pop_LeaderreligieuxSapouy_16,
+            style: style_LeaderreligieuxSapouy_16_0,
+        });
+        bounds_group.addLayer(layer_LeaderreligieuxSapouy_16);
+        function pop_ChefferiecoutumireSapouy_17(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ChefferiecoutumireSapouy_17_0() {
+            return {
+                pane: 'pane_ChefferiecoutumireSapouy_17',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_ChefferiecoutumireSapouy_17');
+        map.getPane('pane_ChefferiecoutumireSapouy_17').style.zIndex = 417;
+        map.getPane('pane_ChefferiecoutumireSapouy_17').style['mix-blend-mode'] = 'normal';
+        var layer_ChefferiecoutumireSapouy_17 = new L.geoJson(json_ChefferiecoutumireSapouy_17, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_ChefferiecoutumireSapouy_17',
+            layerName: 'layer_ChefferiecoutumireSapouy_17',
+            pane: 'pane_ChefferiecoutumireSapouy_17',
+            onEachFeature: pop_ChefferiecoutumireSapouy_17,
+            style: style_ChefferiecoutumireSapouy_17_0,
+        });
+        bounds_group.addLayer(layer_ChefferiecoutumireSapouy_17);
+        function pop_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18_0() {
+            return {
+                pane: 'pane_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18');
+        map.getPane('pane_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18').style.zIndex = 418;
+        map.getPane('pane_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18 = new L.geoJson(json_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18',
+            layerName: 'layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18',
+            pane: 'pane_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18',
+            onEachFeature: pop_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,
+            style: style_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18_0,
+        });
+        bounds_group.addLayer(layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18);
+        function pop_AssociationOunKounDoOunKoun_19(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationOunKounDoOunKoun_19_0() {
+            return {
+                pane: 'pane_AssociationOunKounDoOunKoun_19',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationOunKounDoOunKoun_19');
+        map.getPane('pane_AssociationOunKounDoOunKoun_19').style.zIndex = 419;
+        map.getPane('pane_AssociationOunKounDoOunKoun_19').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationOunKounDoOunKoun_19 = new L.geoJson(json_AssociationOunKounDoOunKoun_19, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationOunKounDoOunKoun_19',
+            layerName: 'layer_AssociationOunKounDoOunKoun_19',
+            pane: 'pane_AssociationOunKounDoOunKoun_19',
+            onEachFeature: pop_AssociationOunKounDoOunKoun_19,
+            style: style_AssociationOunKounDoOunKoun_19_0,
+        });
+        bounds_group.addLayer(layer_AssociationOunKounDoOunKoun_19);
+        function pop_LeaderreligieuxBanfora_20(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_LeaderreligieuxBanfora_20_0() {
+            return {
+                pane: 'pane_LeaderreligieuxBanfora_20',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_LeaderreligieuxBanfora_20');
+        map.getPane('pane_LeaderreligieuxBanfora_20').style.zIndex = 420;
+        map.getPane('pane_LeaderreligieuxBanfora_20').style['mix-blend-mode'] = 'normal';
+        var layer_LeaderreligieuxBanfora_20 = new L.geoJson(json_LeaderreligieuxBanfora_20, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_LeaderreligieuxBanfora_20',
+            layerName: 'layer_LeaderreligieuxBanfora_20',
+            pane: 'pane_LeaderreligieuxBanfora_20',
+            onEachFeature: pop_LeaderreligieuxBanfora_20,
+            style: style_LeaderreligieuxBanfora_20_0,
+        });
+        bounds_group.addLayer(layer_LeaderreligieuxBanfora_20);
+        function pop_DEWRAN_21(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_DEWRAN_21_0() {
+            return {
+                pane: 'pane_DEWRAN_21',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_DEWRAN_21');
+        map.getPane('pane_DEWRAN_21').style.zIndex = 421;
+        map.getPane('pane_DEWRAN_21').style['mix-blend-mode'] = 'normal';
+        var layer_DEWRAN_21 = new L.geoJson(json_DEWRAN_21, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_DEWRAN_21',
+            layerName: 'layer_DEWRAN_21',
+            pane: 'pane_DEWRAN_21',
+            onEachFeature: pop_DEWRAN_21,
+            style: style_DEWRAN_21_0,
+        });
+        bounds_group.addLayer(layer_DEWRAN_21);
+        function pop_ChefferiecoutumireBanfora_22(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ChefferiecoutumireBanfora_22_0() {
+            return {
+                pane: 'pane_ChefferiecoutumireBanfora_22',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_ChefferiecoutumireBanfora_22');
+        map.getPane('pane_ChefferiecoutumireBanfora_22').style.zIndex = 422;
+        map.getPane('pane_ChefferiecoutumireBanfora_22').style['mix-blend-mode'] = 'normal';
+        var layer_ChefferiecoutumireBanfora_22 = new L.geoJson(json_ChefferiecoutumireBanfora_22, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_ChefferiecoutumireBanfora_22',
+            layerName: 'layer_ChefferiecoutumireBanfora_22',
+            pane: 'pane_ChefferiecoutumireBanfora_22',
+            onEachFeature: pop_ChefferiecoutumireBanfora_22,
+            style: style_ChefferiecoutumireBanfora_22_0,
+        });
+        bounds_group.addLayer(layer_ChefferiecoutumireBanfora_22);
+        function pop_SyndicatdestransporteursroutiersNiangoloko_23(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_SyndicatdestransporteursroutiersNiangoloko_23_0() {
+            return {
+                pane: 'pane_SyndicatdestransporteursroutiersNiangoloko_23',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_SyndicatdestransporteursroutiersNiangoloko_23');
+        map.getPane('pane_SyndicatdestransporteursroutiersNiangoloko_23').style.zIndex = 423;
+        map.getPane('pane_SyndicatdestransporteursroutiersNiangoloko_23').style['mix-blend-mode'] = 'normal';
+        var layer_SyndicatdestransporteursroutiersNiangoloko_23 = new L.geoJson(json_SyndicatdestransporteursroutiersNiangoloko_23, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_SyndicatdestransporteursroutiersNiangoloko_23',
+            layerName: 'layer_SyndicatdestransporteursroutiersNiangoloko_23',
+            pane: 'pane_SyndicatdestransporteursroutiersNiangoloko_23',
+            onEachFeature: pop_SyndicatdestransporteursroutiersNiangoloko_23,
+            style: style_SyndicatdestransporteursroutiersNiangoloko_23_0,
+        });
+        bounds_group.addLayer(layer_SyndicatdestransporteursroutiersNiangoloko_23);
+        function pop_CommunautdesmossisNiangoloko_24(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CommunautdesmossisNiangoloko_24_0() {
+            return {
+                pane: 'pane_CommunautdesmossisNiangoloko_24',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_CommunautdesmossisNiangoloko_24');
+        map.getPane('pane_CommunautdesmossisNiangoloko_24').style.zIndex = 424;
+        map.getPane('pane_CommunautdesmossisNiangoloko_24').style['mix-blend-mode'] = 'normal';
+        var layer_CommunautdesmossisNiangoloko_24 = new L.geoJson(json_CommunautdesmossisNiangoloko_24, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_CommunautdesmossisNiangoloko_24',
+            layerName: 'layer_CommunautdesmossisNiangoloko_24',
+            pane: 'pane_CommunautdesmossisNiangoloko_24',
+            onEachFeature: pop_CommunautdesmossisNiangoloko_24,
+            style: style_CommunautdesmossisNiangoloko_24_0,
+        });
+        bounds_group.addLayer(layer_CommunautdesmossisNiangoloko_24);
+        function pop_BURKINAFASO_25(feature, layer) {
+        }
+
+        function style_BURKINAFASO_25_0() {
+            return {
+                pane: 'pane_BURKINAFASO_25',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 3.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(125,139,143,0.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_BURKINAFASO_25');
+        map.getPane('pane_BURKINAFASO_25').style.zIndex = 425;
+        map.getPane('pane_BURKINAFASO_25').style['mix-blend-mode'] = 'normal';
+        var layer_BURKINAFASO_25 = new L.geoJson(json_BURKINAFASO_25, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_BURKINAFASO_25',
+            layerName: 'layer_BURKINAFASO_25',
+            pane: 'pane_BURKINAFASO_25',
+            onEachFeature: pop_BURKINAFASO_25,
+            style: style_BURKINAFASO_25_0,
+        });
+        bounds_group.addLayer(layer_BURKINAFASO_25);
+        map.addLayer(layer_BURKINAFASO_25);
+        function pop_ACTEURS_26(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td class="visible-with-data" id="nom_acteur"colspan="2"><strong>NOM</strong><br />' + (feature.properties['nom_acteur'] !== null ? autolinker.link(feature.properties['nom_acteur'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">ADRESSE</th>\
+                        <td>' + (feature.properties['adresse_ac'] !== null ? autolinker.link(feature.properties['adresse_ac'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">CATEGORIE</th>\
+                        <td>' + (feature.properties['nom_type'] !== null ? autolinker.link(feature.properties['nom_type'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">TYPES DE MIGRATION</th>\
+                        <td>' + (feature.properties['types_migr'] !== null ? autolinker.link(feature.properties['types_migr'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">SERVICES</th>\
+                        <td>' + (feature.properties['services'] !== null ? autolinker.link(feature.properties['services'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ACTEURS_26_0() {
+            return {
+                pane: 'pane_ACTEURS_26',
+                radius: 6.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(192,0,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ACTEURS_26');
+        map.getPane('pane_ACTEURS_26').style.zIndex = 426;
+        map.getPane('pane_ACTEURS_26').style['mix-blend-mode'] = 'normal';
+        var layer_ACTEURS_26 = new L.geoJson(json_ACTEURS_26, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ACTEURS_26',
+            layerName: 'layer_ACTEURS_26',
+            pane: 'pane_ACTEURS_26',
+            onEachFeature: pop_ACTEURS_26,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_ACTEURS_26_0(feature));
+            },
+        });
+        var cluster_ACTEURS_26 = new L.MarkerClusterGroup({showCoverageOnHover: false,
+            spiderfyDistanceMultiplier: 2});
+        cluster_ACTEURS_26.addLayer(layer_ACTEURS_26);
+
+        bounds_group.addLayer(layer_ACTEURS_26);
+        cluster_ACTEURS_26.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/ACTEURS_26.png" /> ACTEURS', layer: cluster_ACTEURS_26},
+            {label: '<img src="legend/BURKINAFASO_25.png" /> BURKINA FASO', layer: layer_BURKINAFASO_25},
+        {label: '<b>NIANGOLOKO</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/CommunautdesmossisNiangoloko_24.png" /> Communauté des mossis/Niangoloko', layer: layer_CommunautdesmossisNiangoloko_24},
+            {label: '<img src="legend/SyndicatdestransporteursroutiersNiangoloko_23.png" /> Syndicat des transporteurs routiers/Niangoloko', layer: layer_SyndicatdestransporteursroutiersNiangoloko_23},]},
+        {label: '<b>BANFORA</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/ChefferiecoutumireBanfora_22.png" /> Chefferie coutumière/Banfora', layer: layer_ChefferiecoutumireBanfora_22},
+            {label: '<img src="legend/DEWRAN_21.png" /> DEWRAN', layer: layer_DEWRAN_21},
+            {label: '<img src="legend/LeaderreligieuxBanfora_20.png" /> Leader religieux/Banfora', layer: layer_LeaderreligieuxBanfora_20},]},
+        {label: '<b>SAPOUY</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/AssociationOunKounDoOunKoun_19.png" /> Association Oun-KounDo Oun-Koun', layer: layer_AssociationOunKounDoOunKoun_19},
+            {label: '<img src="legend/AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18.png" /> Association pour la Réinsertion Sociale des Enfants en Difficulté', layer: layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18},
+            {label: '<img src="legend/ChefferiecoutumireSapouy_17.png" /> Chefferie coutumière/Sapouy', layer: layer_ChefferiecoutumireSapouy_17},
+            {label: '<img src="legend/LeaderreligieuxSapouy_16.png" /> Leader religieux/Sapouy', layer: layer_LeaderreligieuxSapouy_16},
+            {label: '<img src="legend/LeaderreligieuxSapouyOCADESCaritasBurkina_15.png" /> Leader religieux/Sapouy (OCADES Caritas Burkina)', layer: layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15},]},
+        {label: '<b>KOUDOUGOU</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.png" /> Association des gourmanchtés dans le Boulkiemdé/Koudougou', layer: layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14},
+            {label: '<img src="legend/AssociationdesressortissantsduGanzourgouKoudougou_13.png" /> Association des ressortissants du Ganzourgou à Koudougou', layer: layer_AssociationdesressortissantsduGanzourgouKoudougou_13},
+            {label: '<img src="legend/LeaderreligieuxKoudougou_12.png" /> Leader religieux/Koudougou', layer: layer_LeaderreligieuxKoudougou_12},]},
+        {label: '<b>ZINIARE</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/AssociationdesBwabasetSympathisantsdeZiniar_11.png" /> Association des Bwabas et Sympathisants de Ziniaré', layer: layer_AssociationdesBwabasetSympathisantsdeZiniar_11},
+            {label: '<img src="legend/ChefferiecoutumireZiniar_10.png" /> Chefferie coutumière/Ziniaré', layer: layer_ChefferiecoutumireZiniar_10},
+            {label: '<img src="legend/LeaderreligieuxZiniar_9.png" /> Leader religieux/Ziniaré', layer: layer_LeaderreligieuxZiniar_9},]},
+        {label: '<b>PROVINCIALE</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/AssociationdesressortissantsduSanguiARSO_8.png" /> Association des ressortissants du Sanguié (ARSO)', layer: layer_AssociationdesressortissantsduSanguiARSO_8},
+            {label: '<img src="legend/AssociationpourledveloppementduyatengaauBoulkiemdADYB_7.png" /> Association pour le développement du yatenga au Boulkiemdé (ADY-B)', layer: layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7},
+            {label: '<img src="legend/CercledInitiativeetdeConcertationdelOubritengaCICO_6.png" /> Cercle d"Initiative et de Concertation de l"Oubritenga (CICO)', layer: layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6},
+            {label: '<img src="legend/RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5.png" /> Réseau Provincial de Protection de l"Enfance (RPE) du Kadiogo', layer: layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5},]},
+        {label: '<b>REGIONALE</b>', selectAllCheckbox: true, children: [
+            {label: '<img src="legend/AssociationTON_4.png" /> Association TON', layer: layer_AssociationTON_4},
+            {label: '<img src="legend/BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3.png" /> Brigase Régionale de Protection de l‘Enfance du Centre (BRPE)', layer: layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3},
+            {label: '<img src="legend/CaritasSuisse_2.png" /> Caritas Suisse', layer: layer_CaritasSuisse_2},
+            {label: '<img src="legend/CIAUDCanada_1.png" /> CIAUD Canada', layer: layer_CIAUDCanada_1},]},
+            {label: "OSM Standard", layer: layer_OSMStandard_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_CIAUDCanada_1.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CIAUDCanada_1'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_CaritasSuisse_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CaritasSuisse_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationTON_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationTON_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CercledInitiativeetdeConcertationdelOubritengaCICO_6'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationdesressortissantsduSanguiARSO_8.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationdesressortissantsduSanguiARSO_8'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LeaderreligieuxZiniar_9.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LeaderreligieuxZiniar_9'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_ChefferiecoutumireZiniar_10.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_ChefferiecoutumireZiniar_10'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationdesBwabasetSympathisantsdeZiniar_11.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationdesBwabasetSympathisantsdeZiniar_11'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LeaderreligieuxKoudougou_12.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LeaderreligieuxKoudougou_12'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationdesressortissantsduGanzourgouKoudougou_13.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationdesressortissantsduGanzourgouKoudougou_13'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LeaderreligieuxSapouyOCADESCaritasBurkina_15'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LeaderreligieuxSapouy_16.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LeaderreligieuxSapouy_16'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_ChefferiecoutumireSapouy_17.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_ChefferiecoutumireSapouy_17'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_AssociationOunKounDoOunKoun_19.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationOunKounDoOunKoun_19'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_LeaderreligieuxBanfora_20.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_LeaderreligieuxBanfora_20'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_DEWRAN_21.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_DEWRAN_21'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_ChefferiecoutumireBanfora_22.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_ChefferiecoutumireBanfora_22'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_SyndicatdestransporteursroutiersNiangoloko_23.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_SyndicatdestransporteursroutiersNiangoloko_23'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_CommunautdesmossisNiangoloko_24.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CommunautdesmossisNiangoloko_24'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        map.addControl(new L.Control.Search({
+            layer: cluster_ACTEURS_26,
+            initial: false,
+            hideMarkerOnCollapse: true,
+            propertyName: 'nom_acteur'}));
+        document.getElementsByClassName('search-button')[0].className +=
+         ' fa fa-binoculars';
+        resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+        map.on("zoomend", function(){
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+        });
+        </script>
+    </body>
+</html>
