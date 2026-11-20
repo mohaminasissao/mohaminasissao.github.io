@@ -57,6 +57,7 @@
         <script src="data/AssociationdesBwabasetSympathisantsdeZiniar_11.js"></script>
         <script src="data/LeaderreligieuxKoudougou_12.js"></script>
         <script src="data/AssociationdesressortissantsduGanzourgouKoudougou_13.js"></script>
+        <script src="data/AssociationdesressortissantsduKoritengaKoudougou_27.js"></script>
         <script src="data/AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.js"></script>
         <script src="data/LeaderreligieuxSapouyOCADESCaritasBurkina_15.js"></script>
         <script src="data/LeaderreligieuxSapouy_16.js"></script>
@@ -700,6 +701,47 @@
             style: style_AssociationdesressortissantsduGanzourgouKoudougou_13_0,
         });
         bounds_group.addLayer(layer_AssociationdesressortissantsduGanzourgouKoudougou_13);
+        function pop_AssociationdesressortissantsduKoritengaKoudougou_27(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['nom_com'] !== null ? autolinker.link(feature.properties['nom_com'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_AssociationdesressortissantsduKoritengaKoudougou_27_0() {
+            return {
+                pane: 'pane_AssociationdesressortissantsduKoritengaKoudougou_27',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,118,120,1.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_AssociationdesressortissantsduKoritengaKoudougou_27');
+        map.getPane('pane_AssociationdesressortissantsduKoritengaKoudougou_27').style.zIndex = 413;
+        map.getPane('pane_AssociationdesressortissantsduKoritengaKoudougou_27').style['mix-blend-mode'] = 'normal';
+        var layer_AssociationdesressortissantsduKoritengaKoudougou_27 = new L.geoJson(json_AssociationdesressortissantsduKoritengaKoudougou_27, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_AssociationdesressortissantsduKoritengaKoudougou_27',
+            layerName: 'layer_AssociationdesressortissantsduKoritengaKoudougou_27',
+            pane: 'pane_AssociationdesressortissantsduKoritengaKoudougou_27',
+            onEachFeature: pop_AssociationdesressortissantsduKoritengaKoudougou_27,
+            style: style_AssociationdesressortissantsduKoritengaKoudougou_27_0,
+        });
+        bounds_group.addLayer(layer_AssociationdesressortissantsduKoritengaKoudougou_27);
         function pop_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
@@ -1282,6 +1324,7 @@
         {label: '<b>KOUDOUGOU</b>', selectAllCheckbox: true, children: [
             {label: '<img src="legend/AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.png" /> Association des gourmanchtés dans le Boulkiemdé/Koudougou', layer: layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14},
             {label: '<img src="legend/AssociationdesressortissantsduGanzourgouKoudougou_13.png" /> Association des ressortissants du Ganzourgou à Koudougou', layer: layer_AssociationdesressortissantsduGanzourgouKoudougou_13},
+            {label: '<img src="legend/AssociationdesressortissantsduKoritengaKoudougou_27.png" /> Association des ressortissants du Koritenga à Koudougou', layer: layer_AssociationdesressortissantsduKoritengaKoudougou_27},
             {label: '<img src="legend/LeaderreligieuxKoudougou_12.png" /> Leader religieux/Koudougou', layer: layer_LeaderreligieuxKoudougou_12},]},
         {label: '<b>ZINIARE</b>', selectAllCheckbox: true, children: [
             {label: '<img src="legend/AssociationdesBwabasetSympathisantsdeZiniar_11.png" /> Association des Bwabas et Sympathisants de Ziniaré', layer: layer_AssociationdesBwabasetSympathisantsdeZiniar_11},
@@ -1479,6 +1522,19 @@
               i++;
         });
         var i = 0;
+        layer_AssociationdesressortissantsduKoritengaKoudougou_27.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['nom_com'] !== null?String('<div style="color: #000000; font-size: 9pt; font-family: \'Arial Narrow\', sans-serif;">' + layer.feature.properties['nom_com']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_AssociationdesressortissantsduKoritengaKoudougou_27'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
         layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14.eachLayer(function(layer) {
             var context = {
                 feature: layer.feature,
@@ -1628,15 +1684,15 @@
             propertyName: 'nom_acteur'}));
         document.getElementsByClassName('search-button')[0].className +=
          ' fa fa-binoculars';
-        resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+        resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesressortissantsduKoritengaKoudougou_27,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
         map.on("zoomend", function(){
-            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesressortissantsduKoritengaKoudougou_27,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
         });
         map.on("layeradd", function(){
-            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesressortissantsduKoritengaKoudougou_27,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
         });
         map.on("layerremove", function(){
-            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
+            resetLabels([layer_CIAUDCanada_1,layer_CaritasSuisse_2,layer_BrigaseRgionaledeProtectiondelEnfanceduCentreBRPE_3,layer_AssociationTON_4,layer_RseauProvincialdeProtectiondelEnfanceRPEduKadiogo_5,layer_CercledInitiativeetdeConcertationdelOubritengaCICO_6,layer_AssociationpourledveloppementduyatengaauBoulkiemdADYB_7,layer_AssociationdesressortissantsduSanguiARSO_8,layer_LeaderreligieuxZiniar_9,layer_ChefferiecoutumireZiniar_10,layer_AssociationdesBwabasetSympathisantsdeZiniar_11,layer_LeaderreligieuxKoudougou_12,layer_AssociationdesressortissantsduGanzourgouKoudougou_13,layer_AssociationdesressortissantsduKoritengaKoudougou_27,layer_AssociationdesgourmanchtsdansleBoulkiemdKoudougou_14,layer_LeaderreligieuxSapouyOCADESCaritasBurkina_15,layer_LeaderreligieuxSapouy_16,layer_ChefferiecoutumireSapouy_17,layer_AssociationpourlaRinsertionSocialedesEnfantsenDifficult_18,layer_AssociationOunKounDoOunKoun_19,layer_LeaderreligieuxBanfora_20,layer_DEWRAN_21,layer_ChefferiecoutumireBanfora_22,layer_SyndicatdestransporteursroutiersNiangoloko_23,layer_CommunautdesmossisNiangoloko_24]);
         });
         </script>
     </body>
